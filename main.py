@@ -3,7 +3,9 @@ import os
 import math
 from pygame.locals import *
 
+
 pygame.init()
+pygame.mixer.init()
 
 class Canon:
     def __init__(self,x,y):
@@ -59,6 +61,10 @@ class Ball(pygame.sprite.Sprite):
         self.rect.y+=self.speed
 
 def main():
+
+    # sounds
+    hit_sound = pygame.mixer.Sound('components/audio/mixkit-winning-a-coin-video-game-2069.wav')
+
     screen_width=800
     screen_height=600
     screen=pygame.display.set_mode((screen_width,screen_height))
@@ -70,17 +76,23 @@ def main():
     canon=Canon(screen_width//2 -width//2,screen_height-height-10)
 
      # setup for ball
-    speed=0.5 #speed of the ball
+    speed=0.5
     all_balls =pygame.sprite.Group(
         Ball(100, 50, 20, (255, 0, 0)),
         Ball(200, 60, 30, (0, 255, 0)),
         Ball(300, 40, 25, (0, 0, 255)),
+        # Ball(100, 70, 20, (255, 0, 0)),
+        # Ball(100, 80, 20, (255, 0, 0))
     )
 
     clock=pygame.time.Clock()
 
     # setup groups for bullets
     all_bullets = pygame.sprite.Group()
+
+    # play the audio now
+    pygame.mixer.music.load("components/audio/mixkit-arcade-video-game-machine-alert-2821.wav")
+    pygame.mixer.music.play(-1)
 
     while True:
         # pygame.time.delay(10)
@@ -110,6 +122,7 @@ def main():
 
         hits=pygame.sprite.groupcollide(all_bullets,all_balls,True,True)
         if hits:
+            hit_sound.play()
             print("hit!!!")
 
         # lets draw
