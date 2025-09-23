@@ -10,10 +10,8 @@ class Canon:
         self.x = x
         self.y = y
         self.vel=10
-        # self.width=width
-        # self.height=height
+
     def draw(self,surface,width,height):
-        # pygame.draw.rect(surface,(255,0,0),(self.x,self.y,self.width,self.height))
         pygame.draw.rect(surface,(255,0,0),(self.x,self.y,width,height))
 
 class Bullet(pygame.sprite.Sprite):
@@ -38,20 +36,27 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.x+=self.vel_x
         self.rect.y+=self.vel_y
 
-class Ball:
-    def __init__(self,x,y,radius,color,y_velocity=0):
-        self.x = x
-        self.y = y
+class Ball(pygame.sprite.Sprite):
+    def __init__(self,x,y,radius,color,speed=0):
+        super().__init__()
+
+        # create the surface
+        self.image = pygame.Surface((radius*2, radius*2),pygame.SRCALPHA)
+        pygame.draw.circle(self.image,color,(radius,radius),radius)
+        self.rect = self.image.get_rect(center=(x,y))
+        self.rect.x=x
+        self.rect.y=y
+
+        # speed
+        self.speed=speed
+
         self.radius = radius
         self.color = color
-        self.y_velocity = y_velocity
+        self.y_velocity = speed
 
-
-
-    def draw(self,surface):
-        pygame.draw.circle(surface,self.color,(int(self.x),int(self.y)),self.radius)
-
-
+    def update(self):
+        self.rect.x+=self.speed
+        self.rect.y+=self.speed
 
 def main():
     screen_width=800
@@ -60,15 +65,22 @@ def main():
     pygame.display.set_caption("moving balls and banons ")
 
     # setup for canon
-    canon=Canon(200,200)
     height=20
     width=20
+    canon=Canon(screen_width//2 -width//2,screen_height-height-10)
 
      # setup for ball
-    gravity=0.5
-    balls=[Ball(100,50,20,(255,0,0)), Ball(200,200,30,(0,255,0)), Ball(300,300,30,(0,0,255)), Ball(400,400,30,(255,255,0)), Ball(500,500,30,(255,0,255)), Ball(600,600,30,(255,255,255)), Ball(700,700,30,(0,255,255))]
-    # balls=[Ball(100,50,20,(255,0,0)),Ball(100,60,20,(255,0,0)),Ball(100,50,20,(255,0,0)),Ball(100,50,20,(255,0,0)),Ball(100,50,20,(255,0,0))]
+    speed=0.5 #speed of the ball
+    all_balls =pygame.sprite.Group(
+        Ball(100, 50, 20, (255, 0, 0)),
+        Ball(200, 60, 30, (0, 255, 0)),
+        Ball(300, 40, 25, (0, 0, 255)),
+    )
+
     clock=pygame.time.Clock()
+
+    # setup groups for bullets
+    all_bullets = pygame.sprite.Group()
 
     while True:
         # pygame.time.delay(10)
@@ -76,6 +88,11 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+            if event.type == pygame.MOUSEBUTTONDOWN:  # Left click
+                if event.button == 1:
+                    mouse_x,mouse_y=pygame.mouse.get_pos()
+                    bullet = Bullet(canon.x+width//2,canon.y, mouse_x, mouse_y, 10)
+                    all_bullets.add(bullet)
         keys= pygame.key.get_pressed()
 
         if keys[pygame.K_LEFT] and canon.x>0:
@@ -87,22 +104,22 @@ def main():
         if keys[pygame.K_DOWN] and canon.y<500-height:
             canon.y+=canon.vel
 
-        for ball in balls:
-            ball.y_velocity +=gravity
-            ball.y+=ball.y_velocity
+        # lets update the bullets
+        all_bullets.update()
+        all_balls.update()
 
-            # lets make it bounce back the wall eski
-            if ball.y+ball.radius>screen_height:
-                ball.y=screen_height-ball.radius
-                ball.y_velocity *=-0.8
+        hits=pygame.sprite.groupcollide(all_bullets,all_balls,True,True)
+        if hits:
+            print("hit!!!")
+
         # lets draw
         screen.fill((0,0,0))
-        # pygame.draw.rect(screen,(255,140,10),(canon.x,canon.y,width,height))
         canon.draw(screen,width,height)
-        for ball in balls:
-            ball.draw(screen)
+        all_bullets.draw(screen)
+        all_balls.draw(screen)
+        # for ball in balls:
+        #     ball.draw(screen)
         pygame.display.flip()
-        # pygame.time.delay(40)
         clock.tick(35)
 
     pygame.quit()
