@@ -18,23 +18,26 @@ class Canon:
         pygame.draw.rect(surface,(255,0,0),(self.x,self.y,width,height))
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self,x,y,target_x,target_y,speed):
+    def __init__(self,x,y,target_x,target_y,speed=10):
         super().__init__()
         self.image = pygame.Surface((10, 10))
         self.image.fill((255, 0, 0))
         self.rect = self.image.get_rect(center=(x,y))
 
+        # we only shoot straight
+        self.vel_x=0
+        self.vel_y=-speed
         # lets calculate velocity
-        dx=target_x-x
-        dy=target_y-y
-        distance=(dx**2 + dy**2)
-        distance=math.sqrt(distance)
-        if distance>0:
-            self.vel_x=(dx/distance)*speed
-            self.vel_y=(dy/distance)*speed
-        else:
-            self.vel_x=0
-            self.vel_y=0
+        # dx=target_x-x
+        # dy=target_y-y
+        # distance=(dx**2 + dy**2)
+        # distance=math.sqrt(distance)
+        # if distance>0:
+        #     self.vel_x=(dx/distance)*speed
+        #     self.vel_y=(dy/distance)*speed
+        # else:
+        #     self.vel_x=0
+        #     self.vel_y=0
     def update(self):
         self.rect.x+=self.vel_x
         self.rect.y+=self.vel_y
