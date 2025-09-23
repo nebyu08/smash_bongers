@@ -1,6 +1,7 @@
 import pygame
 import os
 import math
+import random
 from pygame.locals import *
 
 
@@ -60,6 +61,24 @@ class Ball(pygame.sprite.Sprite):
         self.rect.x+=self.speed
         self.rect.y+=self.speed
 
+class Particle(pygame.sprite.Sprite):
+    def __init__(self,x,y,color):
+        super().__init__()
+        self.radius=3
+        self.image = pygame.Surface((self.radius*2, self.radius*2),pygame.SRCALPHA)
+        pygame.draw.circle(self.image,color,(self.radius,self.radius),self.radius)
+        self.rect = self.image.get_rect(center=(x,y))
+        self.rect.x=x
+        self.rect.y=y
+        self.vel=[random.uniform(-3,3),random.uniform(-3,3)]
+        self.lifetime=30
+    def update(self):
+        self.rect.x+=self.vel[0]
+        self.rect.y+=self.vel[1]
+        self.lifetime-=1
+        if self.lifetime<=0:
+            self.kill()
+
 def main():
 
     # sounds
@@ -81,18 +100,17 @@ def main():
         Ball(100, 50, 20, (255, 0, 0)),
         Ball(200, 60, 30, (0, 255, 0)),
         Ball(300, 40, 25, (0, 0, 255)),
-        # Ball(100, 70, 20, (255, 0, 0)),
-        # Ball(100, 80, 20, (255, 0, 0))
     )
 
     clock=pygame.time.Clock()
 
     # setup groups for bullets
     all_bullets = pygame.sprite.Group()
+    all_particles = pygame.sprite.Group()
 
     # play the audio now
-    pygame.mixer.music.load("components/audio/mixkit-arcade-video-game-machine-alert-2821.wav")
-    pygame.mixer.music.play(-1)
+    # pygame.mixer.music.load("components/audio/mixkit-arcade-video-game-machine-alert-2821.wav")
+    # pygame.mixer.music.play(-1)
 
     while True:
         # pygame.time.delay(10)
@@ -123,15 +141,19 @@ def main():
         hits=pygame.sprite.groupcollide(all_bullets,all_balls,True,True)
         if hits:
             hit_sound.play()
-            print("hit!!!")
+            for bullet,hit_balls in hits.items():
+                for ball in hit_balls:
+                    for _ in range(15):
+                        all_particles.add(Particle(ball.rect.centerx,ball.rect.centery,ball.color))
+        all_particles.update()
+            # print("hit!!!")
 
         # lets draw
         screen.fill((0,0,0))
         canon.draw(screen,width,height)
         all_bullets.draw(screen)
         all_balls.draw(screen)
-        # for ball in balls:
-        #     ball.draw(screen)
+        all_particles.draw(screen)
         pygame.display.flip()
         clock.tick(35)
 
@@ -141,17 +163,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-def load_image(img):
-    fullname=os.path.join('data', img)
-    try:
-        image = pygame.image.load(fullname)
-        if image.get_alpha() is None:
-            image = image.convert()
-        else:
-            image = image.convert_alpha()
-    except pygame.error as message:
-        print('Cannot load image:', fullname)
-        raise SystemExit(message)
-    return image, image.get_rect()
