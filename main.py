@@ -7,6 +7,9 @@ from pygame.locals import *
 
 pygame.init()
 pygame.mixer.init()
+pygame.font.init()
+
+font=pygame.font.SysFont("Arial",30)
 
 class Canon:
     def __init__(self,x,y):
@@ -64,6 +67,7 @@ class Ball(pygame.sprite.Sprite):
         self.rect.x+=self.speed
         self.rect.y+=self.speed
 
+
 class Particle(pygame.sprite.Sprite):
     def __init__(self,x,y,color):
         super().__init__()
@@ -86,6 +90,12 @@ def main():
 
     # sounds
     hit_sound = pygame.mixer.Sound('components/audio/mixkit-winning-a-coin-video-game-2069.wav')
+
+    # font
+
+
+    # score
+    score=0
 
     screen_width=800
     screen_height=600
@@ -144,6 +154,7 @@ def main():
         hits=pygame.sprite.groupcollide(all_bullets,all_balls,True,True)
         if hits:
             hit_sound.play()
+            score+=1
             for bullet,hit_balls in hits.items():
                 for ball in hit_balls:
                     for _ in range(15):
@@ -153,6 +164,7 @@ def main():
 
         # lets draw
         screen.fill((0,0,0))
+        show_score(10,10,score,screen)
         canon.draw(screen,width,height)
         all_bullets.draw(screen)
         all_balls.draw(screen)
@@ -163,6 +175,9 @@ def main():
     pygame.quit()
     quit()
 
+def show_score(x,y,score,screen):
+    score_text=font.render("Score: "+str(score),True,(255,255,255))
+    screen.blit(score_text,(x,y))
 
 if __name__ == "__main__":
     main()
