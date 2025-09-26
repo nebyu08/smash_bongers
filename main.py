@@ -12,13 +12,14 @@ pygame.font.init()
 font=pygame.font.SysFont("Arial",30)
 
 class Canon:
-    def __init__(self,x,y):
+    def __init__(self,x,y,color=(255,0,0)):
         self.x = x
         self.y = y
         self.vel=10
+        self.color=color
 
-    def draw(self,surface,width,height):
-        pygame.draw.rect(surface,(255,0,0),(self.x,self.y,width,height))
+    def draw(self,surface,width,height,offset_x=0,offset_y=0):
+        pygame.draw.rect(surface,self.color,(self.x+offset_x,self.y+offset_y,width,height))
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self,x,y,target_x,target_y,speed=10):
@@ -61,7 +62,7 @@ class Ball(pygame.sprite.Sprite):
         self.radius = radius
         self.color = color
         self.y_velocity = speed
-        self.gravity=0.5
+        self.gravity=0.1
 
     def update(self):
         # self.rect.x+=self.y_velocity
@@ -111,14 +112,14 @@ def main():
     screen_width=800
     screen_height=600
     screen=pygame.display.set_mode((screen_width,screen_height))
-    pygame.display.set_caption("moving balls and banons ")
+    pygame.display.set_caption("kill balls!!!")
 
     # setup for canon
     height=20
     width=20
+    color=(255,0,0)
     canon=Canon(screen_width//2 -width//2,screen_height-height-10)
 
-     # setup for ball
     # speed=0.5
     spawn_interval=5000
     all_balls=pygame.sprite.Group()
@@ -129,15 +130,12 @@ def main():
     all_bullets = pygame.sprite.Group()
     all_particles = pygame.sprite.Group()
 
-    # all_spider=pygame.sprite.Group()
-    # all_spider.add(spider)
-
-
-    # play the audio now
-    # pygame.mixer.music.load("components/audio/mixkit-arcade-video-game-machine-alert-2821.wav")
-    # pygame.mixer.music.play(-1)
-    #
     last_time_spawn=pygame.time.get_ticks()
+
+
+    # scren distortion
+    screen_shake_duration=0
+    screen_shake_intensity=5
 
     while True:
         # pygame.time.delay(10)
@@ -185,15 +183,12 @@ def main():
                 balls_to_remove.append(ball)
         for ball in balls_to_remove:
             ball.kill()
+            screen_shake_duration=10
 
         # for ball in all_balls:
         #     if ball.hit_floor:
         #         ball.hit_floor = False
                 # score-=1
-
-        for ball in list(all_balls):
-            if getattr(ball,"hit_floor",False):
-                score-=1
 
         hits=pygame.sprite.groupcollide(all_bullets,all_balls,True,True)
         if hits:
@@ -206,13 +201,18 @@ def main():
         all_particles.update()
             # print("hit!!!")
 
-        # if balls hits bottom deduce score
 
+        # screen shake config
+        shake_x,shake_y=0,0
+        if screen_shake_duration>0:
+            shake_x=random.randint(-screen_shake_intensity,screen_shake_intensity)
+            shake_y=random.randint(-screen_shake_intensity,screen_shake_intensity)
+            screen_shake_duration-=1
 
         # lets draw
         screen.fill((0,0,0))
         show_score(10,10,score,screen)
-        canon.draw(screen,width,height)
+        canon.draw(screen,width,height,shake_x,shake_y)
         all_bullets.draw(screen)
         all_balls.draw(screen)
         all_particles.draw(screen)
