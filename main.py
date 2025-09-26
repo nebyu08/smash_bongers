@@ -64,9 +64,16 @@ class Ball(pygame.sprite.Sprite):
         self.y_velocity = speed
 
     def update(self):
-        self.rect.x+=self.speed
+        # self.rect.x+=self.speed
         self.rect.y+=self.speed
 
+# class Spider(pygame.sprite.Sprite):
+#     def __init__(self,image_path,x,y):
+#         super().__init__()
+#         self.image = pygame.image.load(image_path)
+#         self.rect = self.image.get_rect(center=(x,y))
+#         self.rect.x=x
+#         self.rect.y=y
 
 class Particle(pygame.sprite.Sprite):
     def __init__(self,x,y,color):
@@ -87,12 +94,8 @@ class Particle(pygame.sprite.Sprite):
             self.kill()
 
 def main():
-
     # sounds
     hit_sound = pygame.mixer.Sound('components/audio/mixkit-winning-a-coin-video-game-2069.wav')
-
-    # font
-
 
     # score
     score=0
@@ -110,16 +113,24 @@ def main():
      # setup for ball
     speed=0.5
     all_balls =pygame.sprite.Group(
-        Ball(100, 50, 20, (255, 0, 0)),
-        Ball(200, 60, 30, (0, 255, 0)),
-        Ball(300, 40, 25, (0, 0, 255)),
+        Ball(100, 50, 20, (255, 0, 0),speed),
+        Ball(200, 60, 30, (0, 255, 0),speed),
+        Ball(300, 40, 25, (0, 0, 255),speed),
     )
+
+    # setup the spider
+    # spider_image_path = 'components/images/spider.png'
+    # spider = Spider(spider_image_path, screen_width//2, screen_height//2)
 
     clock=pygame.time.Clock()
 
     # setup groups for bullets
     all_bullets = pygame.sprite.Group()
     all_particles = pygame.sprite.Group()
+
+    # all_spider=pygame.sprite.Group()
+    # all_spider.add(spider)
+
 
     # play the audio now
     # pygame.mixer.music.load("components/audio/mixkit-arcade-video-game-machine-alert-2821.wav")
@@ -147,6 +158,8 @@ def main():
         if keys[pygame.K_DOWN] and canon.y<500-height:
             canon.y+=canon.vel
 
+        # update ball so that in falls down
+
         # lets update the bullets
         all_bullets.update()
         all_balls.update()
@@ -169,6 +182,7 @@ def main():
         all_bullets.draw(screen)
         all_balls.draw(screen)
         all_particles.draw(screen)
+        # all_spider.draw(screen)
         pygame.display.flip()
         clock.tick(35)
 
