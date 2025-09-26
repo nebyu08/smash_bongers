@@ -136,6 +136,11 @@ def main():
     # scren distortion
     screen_shake_duration=0
     screen_shake_intensity=5
+    Border_color_danger=(255,0,0)
+    border_thickness=10
+    flash_interval=250
+    flash_on=False
+    last_time_set=pygame.time.get_ticks()
 
     while True:
         # pygame.time.delay(10)
@@ -170,6 +175,16 @@ def main():
         if keys[pygame.K_DOWN] and canon.y<screen_height-height:
             canon.y+=canon.vel
 
+        hits=pygame.sprite.groupcollide(all_bullets,all_balls,True,True)
+        if hits:
+             hit_sound.play()
+             score+=1
+             for bullet,hit_balls in hits.items():
+                 for ball in hit_balls:
+                     for _ in range(15):
+                         all_particles.add(Particle(ball.rect.centerx,ball.rect.centery,ball.color))
+        all_particles.update()
+
         # update ball so that in falls down
 
         # lets update the bullets
@@ -181,42 +196,41 @@ def main():
             if ball.hit_floor:
                 score-=1
                 balls_to_remove.append(ball)
+                screen_shake_duration=10
         for ball in balls_to_remove:
             ball.kill()
-            screen_shake_duration=10
 
-        # for ball in all_balls:
-        #     if ball.hit_floor:
-        #         ball.hit_floor = False
-                # score-=1
+        if score<0:
+            current_time=pygame.time.get_ticks()
+            if current_time-last_time_set>flash_interval:
+                flash_on=not flash_on
+                last_time_set=current_time
+            # screen_shake_duration=10
+        else:
+            flash_on=False
 
-        hits=pygame.sprite.groupcollide(all_bullets,all_balls,True,True)
-        if hits:
-            hit_sound.play()
-            score+=1
-            for bullet,hit_balls in hits.items():
-                for ball in hit_balls:
-                    for _ in range(15):
-                        all_particles.add(Particle(ball.rect.centerx,ball.rect.centery,ball.color))
-        all_particles.update()
-            # print("hit!!!")
-
-
-        # screen shake config
         shake_x,shake_y=0,0
         if screen_shake_duration>0:
             shake_x=random.randint(-screen_shake_intensity,screen_shake_intensity)
             shake_y=random.randint(-screen_shake_intensity,screen_shake_intensity)
             screen_shake_duration-=1
 
-        # lets draw
+
         screen.fill((0,0,0))
         show_score(10,10,score,screen)
         canon.draw(screen,width,height,shake_x,shake_y)
         all_bullets.draw(screen)
         all_balls.draw(screen)
         all_particles.draw(screen)
-        # all_spider.draw(screen)
+
+
+        if flash_on and score<0 :
+            pygame.draw.rect(screen, Border_color_danger, (0, 0, screen_width, border_thickness))
+            pygame.draw.rect(screen, Border_color_danger, (0, screen_height - border_thickness, screen_width, border_thickness))
+            pygame.draw.rect(screen, Border_color_danger, (0, border_thickness, border_thickness, screen_height - 2 * border_thickness))
+            pygame.draw.rect(screen, Border_color_danger, (screen_width - border_thickness, border_thickness, border_thickness, screen_height - 2 * border_thickness))
+
+
         pygame.display.flip()
         clock.tick(35)
 
