@@ -76,14 +76,6 @@ class Ball(pygame.sprite.Sprite):
             # self.kill()
             # self.hit_floor=True
 
-# class Spider(pygame.sprite.Sprite):
-#     def __init__(self,image_path,x,y):
-#         super().__init__()
-#         self.image = pygame.image.load(image_path)
-#         self.rect = self.image.get_rect(center=(x,y))
-#         self.rect.x=x
-#         self.rect.y=y
-
 class Particle(pygame.sprite.Sprite):
     def __init__(self,x,y,color):
         super().__init__()
@@ -114,6 +106,15 @@ def main():
     screen=pygame.display.set_mode((screen_width,screen_height))
     pygame.display.set_caption("kill balls!!!")
 
+    # background image
+    try:
+        background_image = pygame.image.load('components/images/background.png').convert()
+        background_image= pygame.transform.scale(background_image,(screen_width,screen_height))
+    except FileNotFoundError:
+        print("Background image not found")
+        pygame.quit()
+        # sys.exit()
+
     # setup for canon
     height=20
     width=20
@@ -137,7 +138,7 @@ def main():
     screen_shake_duration=0
     screen_shake_intensity=5
     Border_color_danger=(255,0,0)
-    border_thickness=10
+    border_thickness=5
     flash_interval=250
     flash_on=False
     last_time_set=pygame.time.get_ticks()
@@ -149,6 +150,7 @@ def main():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+            # screen.blit(background_image,(0,0))
             if event.type == pygame.MOUSEBUTTONDOWN:  # Left click
                 if event.button == 1:
                     mouse_x,mouse_y=pygame.mouse.get_pos()
@@ -185,8 +187,6 @@ def main():
                          all_particles.add(Particle(ball.rect.centerx,ball.rect.centery,ball.color))
         all_particles.update()
 
-        # update ball so that in falls down
-
         # lets update the bullets
         all_bullets.update()
         all_balls.update()
@@ -215,8 +215,12 @@ def main():
             shake_y=random.randint(-screen_shake_intensity,screen_shake_intensity)
             screen_shake_duration-=1
 
+        if background_image:
+            screen.blit(background_image,(0,0))
+        else:
+            screen.fill((0,0,0))
 
-        screen.fill((0,0,0))
+        # screen.fill((0,0,0))
         show_score(10,10,score,screen)
         canon.draw(screen,width,height,shake_x,shake_y)
         all_bullets.draw(screen)
@@ -238,7 +242,7 @@ def main():
     quit()
 
 def show_score(x,y,score,screen):
-    score_text=font.render("Score: "+str(score),True,(255,255,255))
+    score_text=font.render("Score: "+str(score),True,(28,12,247))
     screen.blit(score_text,(x,y))
 
 if __name__ == "__main__":
