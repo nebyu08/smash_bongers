@@ -56,16 +56,24 @@ class Ball(pygame.sprite.Sprite):
         self.rect.x=x
         self.rect.y=y
 
-        # speed
-        self.speed=speed
+        self.hit_floor=False
 
         self.radius = radius
         self.color = color
         self.y_velocity = speed
+        self.gravity=0.5
 
     def update(self):
-        # self.rect.x+=self.speed
-        self.rect.y+=self.speed
+        # self.rect.x+=self.y_velocity
+        self.y_velocity+=0.5
+        self.rect.y+=int(self.y_velocity)
+        if self.rect.bottom>600:
+            self.rect.bottom=600
+            self.y_velocity=0
+            if not self.hit_floor:
+                self.hit_floor=True
+            # self.kill()
+            # self.hit_floor=True
 
 # class Spider(pygame.sprite.Sprite):
 #     def __init__(self,image_path,x,y):
@@ -111,16 +119,9 @@ def main():
     canon=Canon(screen_width//2 -width//2,screen_height-height-10)
 
      # setup for ball
-    speed=0.5
-    all_balls =pygame.sprite.Group(
-        Ball(100, 50, 20, (255, 0, 0),speed),
-        Ball(200, 60, 30, (0, 255, 0),speed),
-        Ball(300, 40, 25, (0, 0, 255),speed),
-    )
-
-    # setup the spider
-    # spider_image_path = 'components/images/spider.png'
-    # spider = Spider(spider_image_path, screen_width//2, screen_height//2)
+    # speed=0.5
+    spawn_interval=5000
+    all_balls=pygame.sprite.Group()
 
     clock=pygame.time.Clock()
 
@@ -135,9 +136,12 @@ def main():
     # play the audio now
     # pygame.mixer.music.load("components/audio/mixkit-arcade-video-game-machine-alert-2821.wav")
     # pygame.mixer.music.play(-1)
+    #
+    last_time_spawn=pygame.time.get_ticks()
 
     while True:
         # pygame.time.delay(10)
+        currnt_time=pygame.time.get_ticks()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -147,15 +151,25 @@ def main():
                     mouse_x,mouse_y=pygame.mouse.get_pos()
                     bullet = Bullet(canon.x+width//2,canon.y, mouse_x, mouse_y, 10)
                     all_bullets.add(bullet)
+        # generate balls
+        if currnt_time - last_time_spawn>spawn_interval:
+            last_time_spawn=currnt_time
+            new_balls=random.randint(1,20)
+            for _ in range(new_balls):
+                x = random.randint(20, 780)
+                new_ball=Ball(x, 0, 20, (0, 0, 255), speed=0)
+                # new_ball=Ball(random.randint(0,500),random.randint(0,500),random.randint(5,10),random.randint(5,10))
+                all_balls.add(new_ball)
+
         keys= pygame.key.get_pressed()
 
         if keys[pygame.K_LEFT] and canon.x>0:
             canon.x-=canon.vel
-        if keys[pygame.K_RIGHT] and canon.x<500-width:
+        if keys[pygame.K_RIGHT] and canon.x<screen_width-width:
             canon.x+=canon.vel
         if keys[pygame.K_UP] and canon.y>0:
             canon.y-=canon.vel
-        if keys[pygame.K_DOWN] and canon.y<500-height:
+        if keys[pygame.K_DOWN] and canon.y<screen_height-height:
             canon.y+=canon.vel
 
         # update ball so that in falls down
@@ -163,6 +177,23 @@ def main():
         # lets update the bullets
         all_bullets.update()
         all_balls.update()
+
+        balls_to_remove=[]
+        for ball in all_balls:
+            if ball.hit_floor:
+                score-=1
+                balls_to_remove.append(ball)
+        for ball in balls_to_remove:
+            ball.kill()
+
+        # for ball in all_balls:
+        #     if ball.hit_floor:
+        #         ball.hit_floor = False
+                # score-=1
+
+        for ball in list(all_balls):
+            if getattr(ball,"hit_floor",False):
+                score-=1
 
         hits=pygame.sprite.groupcollide(all_bullets,all_balls,True,True)
         if hits:
@@ -174,6 +205,9 @@ def main():
                         all_particles.add(Particle(ball.rect.centerx,ball.rect.centery,ball.color))
         all_particles.update()
             # print("hit!!!")
+
+        # if balls hits bottom deduce score
+
 
         # lets draw
         screen.fill((0,0,0))
