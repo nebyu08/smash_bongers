@@ -2,7 +2,10 @@ import pygame
 import os
 import math
 import random
+import time
 from pygame.locals import *
+
+
 
 
 pygame.init()
@@ -11,15 +14,48 @@ pygame.font.init()
 
 font=pygame.font.SysFont("Arial",30)
 
-class Canon:
-    def __init__(self,x,y,color=(255,0,0)):
+class Canon(pygame.sprite.Sprite):
+    def __init__(self,x,y,width,height,color=(255,0,0)):
         self.x = x
         self.y = y
         self.vel=10
         self.color=color
+        self.height=height
+        self.width=width
 
-    def draw(self,surface,width,height,offset_x=0,offset_y=0):
-        pygame.draw.rect(surface,self.color,(self.x+offset_x,self.y+offset_y,width,height))
+        # setting it as image loaded
+        original_img=pygame.image.load('components/images/main_space_craft.png').convert_alpha()
+        self.image=pygame.transform.scale(original_img,(width,height))
+        self.rect=self.image.get_rect(center=(x,y))
+
+        #life specs
+        self.base_y=y
+        self.amplitude=1
+        self.frequency=10
+        self.time_offset=random.uniform(0,2*math.pi)
+
+    def move(self,keys,screen_width,screen_height):
+        if keys[pygame.K_LEFT] and self.rect.left > 0:
+            self.rect.x -= self.vel
+        if keys[pygame.K_RIGHT] and self.rect.right < screen_width-self.width:
+            self.rect.x += self.vel
+        if keys[pygame.K_UP] and self.rect.top > 0:
+            self.rect.y -= self.vel
+        if keys[pygame.K_DOWN] and self.rect.bottom < screen_height-self.height:
+            self.rect.y += self.vel
+
+    def update(self,offset_x=0,offset_y=0):
+        self.rect.x+=offset_x
+        self.rect.y+=offset_y
+
+    def life_move(self):
+        t=time.time()
+        offset=self.amplitude*math.sin(self.frequency*t+self.time_offset)
+        self.rect.y=self.base_y+offset
+
+    def draw(self,surface):
+        surface.blit(self.image,self.rect)
+        # pygame.draw.rect(surface,self.color,(self.x+offset_x,self.y+offset_y,width,height))
 
 class Bullet(pygame.sprite.Sprite):
     def __init__(self,x,y,target_x,target_y,speed=10):
@@ -113,13 +149,14 @@ def main():
     except FileNotFoundError:
         print("Background image not found")
         pygame.quit()
+        # pygame.quit()
         # sys.exit()
 
     # setup for canon
-    height=20
-    width=20
+    height=30
+    width=30
     color=(255,0,0)
-    canon=Canon(screen_width//2 -width//2,screen_height-height-10)
+    canon=Canon(screen_width//2 -width//2,screen_height-height-10,width,height)
 
     # speed=0.5
     spawn_interval=5000
@@ -154,12 +191,15 @@ def main():
             if event.type == pygame.MOUSEBUTTONDOWN:  # Left click
                 if event.button == 1:
                     mouse_x,mouse_y=pygame.mouse.get_pos()
-                    bullet = Bullet(canon.x+width//2,canon.y, mouse_x, mouse_y, 10)
+                    # bullet = Bullet(canon.x+width//2,canon.y, mouse_x, mouse_y, 10)
+                    bullet=Bullet(canon.rect.centerx,canon.rect.centery,mouse_x,mouse_y,10)
                     all_bullets.add(bullet)
+        # lets give life to canon
+        canon.life_move()
         # generate balls
         if currnt_time - last_time_spawn>spawn_interval:
             last_time_spawn=currnt_time
-            new_balls=random.randint(1,20)
+            new_balls=random.randint(1,5)
             for _ in range(new_balls):
                 x = random.randint(20, 780)
                 new_ball=Ball(x, 0, 20, (0, 0, 255), speed=0)
@@ -167,15 +207,8 @@ def main():
                 all_balls.add(new_ball)
 
         keys= pygame.key.get_pressed()
+        canon.move(keys,screen_width,screen_height)
 
-        if keys[pygame.K_LEFT] and canon.x>0:
-            canon.x-=canon.vel
-        if keys[pygame.K_RIGHT] and canon.x<screen_width-width:
-            canon.x+=canon.vel
-        if keys[pygame.K_UP] and canon.y>0:
-            canon.y-=canon.vel
-        if keys[pygame.K_DOWN] and canon.y<screen_height-height:
-            canon.y+=canon.vel
 
         hits=pygame.sprite.groupcollide(all_bullets,all_balls,True,True)
         if hits:
@@ -222,7 +255,9 @@ def main():
 
         # screen.fill((0,0,0))
         show_score(10,10,score,screen)
-        canon.draw(screen,width,height,shake_x,shake_y)
+        canon.update(shake_x,shake_y)
+        canon.draw(screen)
+        # canon.draw(screen,width,height,shake_x,shake_y)
         all_bullets.draw(screen)
         all_balls.draw(screen)
         all_particles.draw(screen)
