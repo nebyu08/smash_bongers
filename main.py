@@ -142,6 +142,10 @@ def main():
     screen=pygame.display.set_mode((screen_width,screen_height))
     pygame.display.set_caption("kill balls!!!")
 
+    # hello to the use
+    main_menu(screen,screen_width,screen_height)
+
+
     # background image
     try:
         background_image = pygame.image.load('components/images/background.png').convert()
@@ -279,6 +283,27 @@ def main():
 def show_score(x,y,score,screen):
     score_text=font.render("Score: "+str(score),True,(28,12,247))
     screen.blit(score_text,(x,y))
+
+def main_menu(screen,screen_width,screen_height):
+    menu_running=True
+    while menu_running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+        screen.fill((0,0,0))
+
+        hello_text=font.render("Welcome to my game",True,(255,255,255))
+        # screen.blit(hello,(screen_width/2 - hello.get_width()/2,screen_height/2 - hello.get_height()/2))
+        screen.blit(hello_text, (screen_width // 2 - hello_text.get_width() // 2, screen_height // 4))
+
+        start_button_rect = pygame.Rect(screen_width // 2 - 100, screen_height // 2, 200, 50)
+        pygame.draw.rect(screen, (0,0,255), start_button_rect)
+        start_text = font.render("Start Game", True, (255,255,255))
+        screen.blit(start_text, (start_button_rect.x + (start_button_rect.width - start_text.get_width()) // 2,
+                                    start_button_rect.y + (start_button_rect.height - start_text.get_height()) // 2))
+
+        pygame.display.flip() # Update the display
 
 if __name__ == "__main__":
     main()
