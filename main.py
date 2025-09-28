@@ -195,12 +195,16 @@ def main():
                 pygame.quit()
                 quit()
             # screen.blit(background_image,(0,0))
-            if event.type == pygame.MOUSEBUTTONDOWN:  # Left click
-                if event.button == 1:
-                    mouse_x,mouse_y=pygame.mouse.get_pos()
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 :  # Left click
+                mouse_x,mouse_y=pygame.mouse.get_pos()
                     # bullet = Bullet(canon.x+width//2,canon.y, mouse_x, mouse_y, 10)
-                    bullet=Bullet(canon.rect.centerx,canon.rect.centery,mouse_x,mouse_y,10)
-                    all_bullets.add(bullet)
+                bullet=Bullet(canon.rect.centerx,canon.rect.centery,mouse_x,mouse_y,10)
+                all_bullets.add(bullet)
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                # if event.key == pygame.K_SPACE:
+                mouse_x,mouse_y=pygame.mouse.get_pos()
+                bullet=Bullet(canon.rect.centerx,canon.rect.centery,mouse_x,mouse_y,10)
+                all_bullets.add(bullet)
         # lets give life to canon
         canon.life_move()
         # generate balls
