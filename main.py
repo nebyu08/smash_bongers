@@ -284,6 +284,21 @@ def show_score(x,y,score,screen):
     score_text=font.render("Score: "+str(score),True,(28,12,247))
     screen.blit(score_text,(x,y))
 
+def draw_gradient_background(screen,screen_width,screen_height):
+    for y in range(screen_height):
+        color=(
+            int(50+(y/screen_height)*150),
+            int(20+(y/screen_height)*50),
+            int(100+(y/screen_height)*150)
+        )
+        pygame.draw.line(screen,color,(0,y),(screen_width,y))
+
+def render_glow_text(text,font,color,glow_color):
+    base=font.render(text,True,color)
+    glow=font.render(text,True,glow_color)
+    return base,glow
+
+
 def main_menu(screen,screen_width,screen_height):
     menu_running=True
     while menu_running:
@@ -298,11 +313,13 @@ def main_menu(screen,screen_width,screen_height):
                     menu_running=False
 
 
-        screen.fill((0,0,0))
-
+        # screen.fill((0,0,0))
+        draw_gradient_background(screen,screen_width,screen_height)
         hello_text=font.render("Welcome to my game",True,(255,255,255))
-        # screen.blit(hello,(screen_width/2 - hello.get_width()/2,screen_height/2 - hello.get_height()/2))
-        screen.blit(hello_text, (screen_width // 2 - hello_text.get_width() // 2, screen_height // 4))
+        screen.blit(hello_text,(screen_width // 2 - hello_text.get_width() // 2, screen_height // 4))
+        # hello_text, hello_glow = render_glow_text("Welcome to my game", font, (255,255,255), (0,255,255))
+        # screen.blit(hello_glow, (screen_width // 2 - hello_glow.get_width() // 2+2, screen_height // 4+2))
+        # screen.blit(hello_text, (screen_width // 2 - hello_text.get_width() // 2, screen_height // 4))
 
         start_button_rect = pygame.Rect(screen_width // 2 - 100, screen_height // 2, 200, 50)
         pygame.draw.rect(screen, (0,0,255), start_button_rect)
