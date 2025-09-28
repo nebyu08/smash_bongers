@@ -14,10 +14,15 @@ python3 -m venv my_env
 source my_env/bin/activate
 ```
 
-3. **Install dependencies:**
-   ```sh
+## Install dependencies
+
+Activate your virtual environment first (see above), then install the required package:
+
+```sh
 pip install pygame
 ```
+
+Only `pygame` is required. All game assets (images and sounds) are included in the repository.
 
 ## How to Play
 
