@@ -4,23 +4,20 @@
 
 1. **Clone the repository:**
    ```sh
-git clone git@github.com:nebyu08/super_pong.git
-cd super_pong
-```
+   git clone git@github.com:nebyu08/super_pong.git
+   cd super_pong
+   ```
 
-2. **Create and activate a Python virtual environment (recommended):**
+2. **Create and activate a Python virtual environment using uv:**
    ```sh
-python3 -m venv my_env
-source my_env/bin/activate
-```
+   uv venv my_env
+   source my_env/bin/activate
+   ```
 
-## Install dependencies
-
-Activate your virtual environment first (see above), then install the required package:
-
-```sh
-pip install pygame
-```
+3. **Install dependencies with uv:**
+   ```sh
+   uv pip install pygame
+   ```
 
 Only `pygame` is required. All game assets (images and sounds) are included in the repository.
 
