@@ -100,6 +100,9 @@ class Ball(pygame.sprite.Sprite):
         self.y_velocity = speed
         self.gravity=0.1
 
+        # hit count
+        self.hit_count=0
+
     def update(self):
         # self.rect.x+=self.y_velocity
         self.y_velocity+=0.5
