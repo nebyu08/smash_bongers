@@ -4,7 +4,7 @@
 
 1. **Clone the repository:**
    ```sh
-git clone <repo-url>
+git clone git@github.com:nebyu08/super_pong.git
 cd super_pong
 ```
 
