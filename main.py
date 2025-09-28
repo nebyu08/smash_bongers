@@ -291,6 +291,13 @@ def main_menu(screen,screen_width,screen_height):
             if event.type == pygame.QUIT:
                 pygame.quit()
                 quit()
+            if event.type==pygame.MOUSEBUTTONDOWN and event.button == 1:
+                mouse_x,mouse_y=pygame.mouse.get_pos()
+                start_button_rect = pygame.Rect(screen_width // 2 - 100, screen_height // 2, 200, 50)
+                if start_button_rect.collidepoint(mouse_x,mouse_y):
+                    menu_running=False
+
+
         screen.fill((0,0,0))
 
         hello_text=font.render("Welcome to my game",True,(255,255,255))
