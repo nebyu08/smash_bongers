@@ -21,6 +21,12 @@
 
 Only `pygame` is required. All game assets (images and sounds) are included in the repository.
 
+## Demo
+
+See how to play super_pong in action:
+
+[![Watch the demo](demo/demo.mp4)](demo/demo.mp4)
+
 ## How to Play
 
 - Run the game:
