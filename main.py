@@ -158,7 +158,7 @@ def main():
     # sounds
     hit_sound = pygame.mixer.Sound('components/audio/mixkit-winning-a-coin-video-game-2069.wav')
 
-    # shooting_sound=pygame.mixer.Sound('components/audio/rifle-gun-shooting-391562.mp3')
+    shooting_sound=pygame.mixer.Sound('components/audio/Hit9.wav')
 
     # score
     score=0
@@ -222,13 +222,13 @@ def main():
                     # bullet = Bullet(canon.x+width//2,canon.y, mouse_x, mouse_y, 10)
                 bullet=Bullet(canon.rect.centerx,canon.rect.centery,mouse_x,mouse_y,10)
                 all_bullets.add(bullet)
-                # shooting_sound.play()
+                shooting_sound.play()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 # if event.key == pygame.K_SPACE:
                 mouse_x,mouse_y=pygame.mouse.get_pos()
                 bullet=Bullet(canon.rect.centerx,canon.rect.centery,mouse_x,mouse_y,10)
                 all_bullets.add(bullet)
-                # shooting_sound.play()
+                shooting_sound.play()
         # lets give life to canon
         canon.life_move()
         # all_enemy.life_move()
