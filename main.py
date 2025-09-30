@@ -25,7 +25,7 @@ class Canon(pygame.sprite.Sprite):
 
         # setting it as image loaded
         original_img=pygame.image.load('components/images/main_space_craft.png').convert_alpha()
-        self.image=pygame.transform.scale(original_img,(width,height))
+        self.image=pygame.transform.smoothscale(original_img,(width,height))
         self.rect=self.image.get_rect(center=(x,y))
 
         #life specs
@@ -37,7 +37,7 @@ class Canon(pygame.sprite.Sprite):
     def move(self,keys,screen_width,screen_height):
         if keys[pygame.K_LEFT] and self.rect.left > 0:
             self.rect.x -= self.vel
-        if keys[pygame.K_RIGHT] and self.rect.right < screen_width-self.width:
+        if keys[pygame.K_RIGHT] and self.rect.right < screen_width: #self.width
             self.rect.x += self.vel
         if keys[pygame.K_UP] and self.rect.top > 0:
             self.rect.y -= self.vel
