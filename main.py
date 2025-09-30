@@ -82,13 +82,18 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.x+=self.vel_x
         self.rect.y+=self.vel_y
 
-class Ball(pygame.sprite.Sprite):
+class Enemy(pygame.sprite.Sprite):
     def __init__(self,x,y,radius,color,speed=0):
         super().__init__()
 
         # create the surface
-        self.image = pygame.Surface((radius*2, radius*2),pygame.SRCALPHA)
-        pygame.draw.circle(self.image,color,(radius,radius),radius)
+        # self.image = pygame.Surface((radius*2, radius*2),pygame.SRCALPHA)
+        # pygame.draw.circle(self.image,color,(radius,radius),radius)
+        self.image=pygame.image.load("components/images/enemy.png").convert_alpha()
+        # pygame.draw.circle(self.image,color,(radius,radius),radius)
+        self.image=pygame.transform.smoothscale(self.image,(radius*2,radius*2))
+
+
         self.rect = self.image.get_rect(center=(x,y))
         self.rect.x=x
         self.rect.y=y
@@ -103,8 +108,19 @@ class Ball(pygame.sprite.Sprite):
         # hit count
         self.hit_count=0
 
+        # life movt
+        self.base_y=y
+        self.amplitude=1
+        self.frequency=10
+        self.time_offset=random.uniform(0,2*math.pi)
+
+
     def update(self):
         # self.rect.x+=self.y_velocity
+        t=time.time()
+        offset=self.amplitude*math.sin(self.frequency*t+self.time_offset)
+        self.rect.y=self.base_y+offset+int(self.y_velocity)
+
         self.y_velocity+=0.5
         self.rect.y+=int(self.y_velocity)
         if self.rect.bottom>600:
@@ -114,6 +130,11 @@ class Ball(pygame.sprite.Sprite):
                 self.hit_floor=True
             # self.kill()
             # self.hit_floor=True
+
+    # def life_move(self):
+    #     t=time.time()
+    #     offset=self.amplitude*math.sin(self.frequency*t+self.time_offset)
+    #     self.rect.y=self.base_y+offset
 
 class Particle(pygame.sprite.Sprite):
     def __init__(self,x,y,color):
@@ -137,6 +158,8 @@ def main():
     # sounds
     hit_sound = pygame.mixer.Sound('components/audio/mixkit-winning-a-coin-video-game-2069.wav')
 
+    # shooting_sound=pygame.mixer.Sound('components/audio/rifle-gun-shooting-391562.mp3')
+
     # score
     score=0
 
@@ -148,10 +171,9 @@ def main():
     # hello to the use
     main_menu(screen,screen_width,screen_height)
 
-
     # background image
     try:
-        background_image = pygame.image.load('components/images/background.png').convert()
+        background_image = pygame.image.load('components/images/background_2.png').convert()
         background_image= pygame.transform.scale(background_image,(screen_width,screen_height))
     except FileNotFoundError:
         print("Background image not found")
@@ -167,7 +189,7 @@ def main():
 
     # speed=0.5
     spawn_interval=5000
-    all_balls=pygame.sprite.Group()
+    all_enemy=pygame.sprite.Group()
 
     clock=pygame.time.Clock()
 
@@ -200,28 +222,31 @@ def main():
                     # bullet = Bullet(canon.x+width//2,canon.y, mouse_x, mouse_y, 10)
                 bullet=Bullet(canon.rect.centerx,canon.rect.centery,mouse_x,mouse_y,10)
                 all_bullets.add(bullet)
+                # shooting_sound.play()
             if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                 # if event.key == pygame.K_SPACE:
                 mouse_x,mouse_y=pygame.mouse.get_pos()
                 bullet=Bullet(canon.rect.centerx,canon.rect.centery,mouse_x,mouse_y,10)
                 all_bullets.add(bullet)
+                # shooting_sound.play()
         # lets give life to canon
         canon.life_move()
+        # all_enemy.life_move()
         # generate balls
         if currnt_time - last_time_spawn>spawn_interval:
             last_time_spawn=currnt_time
             new_balls=random.randint(1,5)
             for _ in range(new_balls):
                 x = random.randint(20, 780)
-                new_ball=Ball(x, 0, 20, (0, 0, 255), speed=0)
+                new_ball=Enemy(x, 0, 20, (0, 0, 255), speed=0)
                 # new_ball=Ball(random.randint(0,500),random.randint(0,500),random.randint(5,10),random.randint(5,10))
-                all_balls.add(new_ball)
+                all_enemy.add(new_ball)
 
         keys= pygame.key.get_pressed()
         canon.move(keys,screen_width,screen_height)
 
 
-        hits=pygame.sprite.groupcollide(all_bullets,all_balls,True,True)
+        hits=pygame.sprite.groupcollide(all_bullets,all_enemy,True,True)
         if hits:
              hit_sound.play()
              score+=1
@@ -233,10 +258,10 @@ def main():
 
         # lets update the bullets
         all_bullets.update()
-        all_balls.update()
+        all_enemy.update()
 
         balls_to_remove=[]
-        for ball in all_balls:
+        for ball in all_enemy:
             if ball.hit_floor:
                 score-=1
                 balls_to_remove.append(ball)
@@ -270,7 +295,7 @@ def main():
         canon.draw(screen)
         # canon.draw(screen,width,height,shake_x,shake_y)
         all_bullets.draw(screen)
-        all_balls.draw(screen)
+        all_enemy.draw(screen)
         all_particles.draw(screen)
 
 
