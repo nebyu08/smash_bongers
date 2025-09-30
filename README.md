@@ -25,7 +25,7 @@ Only `pygame` is required. All game assets (images and sounds) are included in t
 
 See how to play super_pong in action:
 
-[![Watch the demo](demo/demo.mp4)](demo/demo.mp4)
+[Watch the demo](demo_vide/demo.mp4)
 
 ## How to Play
 
@@ -37,9 +37,9 @@ See how to play super_pong in action:
 - **Controls:**
   - Use arrow keys to move the canon (spacecraft) left, right, up, and down.
   - Click the left mouse button to shoot bullets.
-  - Try to hit the falling blue balls before they reach the bottom.
+  - Try to hit the comming alien balls before they reach the bottom.
   - Each hit increases your score; missed balls decrease your score.
   - If your score is negative, the screen border flashes red.
 
 - **Objective:**  
-  Destroy as many balls as possible and keep your score positive!
+  Destroy as many aliens as possible and keep your score positive!
